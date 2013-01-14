@@ -16,7 +16,10 @@
     if ([NUISettings hasProperty:@"background-image" withClass:className]) {
         [item setBackgroundImage:[NUISettings getImage:@"background-image" withClass:className] forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
     }
-    
+    if ([NUISettings hasProperty:@"background-image-selected" withClass:className]) {
+        [item setBackgroundImage:[NUISettings getImage:@"background-image-selected" withClass:className] forState:UIControlStateSelected barMetrics:UIBarMetricsDefault];
+    }
+  
     if ([NUISettings hasProperty:@"background-tint-color" withClass:className]) {
         [item setTintColor:[NUISettings getColor:@"background-tint-color" withClass:className]];
     }
@@ -24,7 +27,11 @@
         UIImage *backgroundColorImage = [NUIGraphics barButtonWithColor:[NUISettings getColor:@"background-color" withClass:className]];
         [item setBackgroundImage:backgroundColorImage forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
     }
-    
+    if ([NUISettings hasProperty:@"background-color-selected" withClass:className]) {
+        UIImage *backgroundColorImage = [NUIGraphics barButtonWithColor:[NUISettings getColor:@"background-color-selected" withClass:className]];
+        [item setBackgroundImage:backgroundColorImage forState:UIControlStateSelected barMetrics:UIBarMetricsDefault];
+    }
+  
     NSDictionary *titleTextAttributes = [NUIUtilities titleTextAttributesForClass:className];
     
     if ([[titleTextAttributes allKeys] count] > 0) {
