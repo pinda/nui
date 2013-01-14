@@ -11,14 +11,71 @@
 
 #import "NUIStyleParser.h"
 
-@implementation NUIStyleParser
+#import "CoreParse.h"
+
+@interface NUIStyleParser () <CPTokeniserDelegate, CPParserDelegate>
+
+@property (readwrite, strong) CPTokeniser *tokeniser;
+@property (readwrite, strong) CPParser *parser;
+
+@end
+
+@implementation NUIStyleParser {
+  NSCharacterSet *symbolsSet;
+}
+
+@synthesize tokeniser;
+@synthesize parser;
+
+- (id)init
+{
+  self = [super init];
+  
+  if (nil != self)
+  {
+    symbolsSet = [NSCharacterSet characterSetWithCharactersInString:@"*[]{}.;@-!=<>:!#%"];
+    
+    NSDictionary *pt = [NSKeyedUnarchiver unarchiveObjectWithFile:[[NSBundle mainBundle] pathForResource:@"parser" ofType:@"osp"]];
+    [self setTokeniser:[pt objectForKey:@"tokeniser"]];
+    [self setParser:[pt objectForKey:@"parser"]];
+    [[self tokeniser] setDelegate:self];
+    [[self parser] setDelegate:self];
+  }
+  
+  return self;
+}
+
+- (BOOL)tokeniser:(CPTokeniser *)tokeniser shouldConsumeToken:(CPToken *)token
+{
+  return YES;
+}
+
+- (NSUInteger)tokeniser:(CPTokeniser *)tokeniser didNotFindTokenOnInput:(NSString *)input position:(NSUInteger)position error:(NSString *__autoreleasing *)errorMessage
+{
+  NSLog(@"Argh");
+  return 1;
+}
+
+- (CPRecoveryAction*)parser:(CPParser *)parser didEncounterErrorOnInput:(CPTokenStream *)inputStream expecting:(NSSet *)acceptableTokens
+{
+  return [CPRecoveryAction recoveryActionStop];
+}
 
 - (NSMutableDictionary*)getStylesFromFile:(NSString*)fileName
 {
-    NSString* path = [[NSBundle mainBundle] pathForResource:fileName ofType:@"nss"];
-    NSAssert1(path != nil, @"File \"%@\" does not exist", fileName);
-    NSString* content = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
-    return [self consolidateRuleSets:[self getRuleSets:content] withTopLevelDeclarations:[self getTopLevelDeclarations:content]];
+  NSString* path = [[NSBundle mainBundle] pathForResource:fileName ofType:@"nss"];
+  NSAssert1(path != nil, @"File \"%@\" does not exist", fileName);
+  NSString* content = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
+  
+  CPTokenStream *stream = [[CPTokenStream alloc] init];
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^()
+                 {
+                   @autoreleasepool
+                   {
+                     [[self tokeniser] tokenise:content into:stream];
+                   }
+                 });
+  return [[self parser] parse:stream];
 }
 
 - (NSMutableDictionary*)getStylesFromPath:(NSString*)path
