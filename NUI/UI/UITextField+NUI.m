@@ -10,8 +10,6 @@
 
 @implementation UITextField (NUI)
 
-@dynamic nuiClass;
-
 - (void)initNUI
 {
     if (!self.nuiClass) {
@@ -19,37 +17,49 @@
     }
 }
 
+- (void)applyNUI
+{
+    [self initNUI];
+    if ([self nuiShouldBeApplied]) {
+        [NUIRenderer renderTextField:self withClass:self.nuiClass];
+    }
+    self.nuiIsApplied = [NSNumber numberWithBool:YES];
+}
+
 - (void)override_didMoveToWindow
 {
     if (!self.nuiIsApplied) {
-        [self initNUI];
-        [self didMoveToWindowNUI];
-        self.nuiIsApplied = [NSNumber numberWithBool:YES];
+        [self applyNUI];
     }
     [self override_didMoveToWindow];
 }
 
-- (void)didMoveToWindowNUI
+- (BOOL)nuiShouldBeApplied
 {
     if (![self.nuiClass isEqualToString:@"none"]) {
-        [NUIRenderer renderTextField:self withClass:self.nuiClass];
+        if (![[self superview] isKindOfClass:[UISearchBar class]]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+// Padding apparently can't be modified during didMoveToWindow
+- (CGRect)override_textRectForBounds:(CGRect)bounds {
+    if ([self nuiShouldBeApplied] &&
+        [NUISettings hasProperty:@"padding" withClass:self.nuiClass]) {
+        UIEdgeInsets insets = [NUISettings getEdgeInsets:@"padding" withClass:self.nuiClass];
+        return CGRectMake(bounds.origin.x + insets.left,
+                          bounds.origin.y + insets.top,
+                          bounds.size.width - (insets.left + insets.right),
+                          bounds.size.height - (insets.top + insets.bottom));
+    } else {
+        return [self override_textRectForBounds:bounds];
     }
 }
 
-- (void)setNuiClass:(NSString*)value {
-    objc_setAssociatedObject(self, "nuiClass", value, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (NSString*)nuiClass {
-    return objc_getAssociatedObject(self, "nuiClass");
-}
-
-- (void)setNuiIsApplied:(NSNumber*)value {
-    objc_setAssociatedObject(self, "nuiIsApplied", value, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (NSNumber*)nuiIsApplied {
-    return objc_getAssociatedObject(self, "nuiIsApplied");
+- (CGRect)override_editingRectForBounds:(CGRect)bounds {
+    return [self textRectForBounds:bounds];
 }
 
 @end

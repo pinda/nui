@@ -3,21 +3,29 @@
 @secondaryFontNameBold: ArialRoundedMTBold;
 @secondaryFontNameStrong: ArialRoundedMTBold;
 @inputFontName: ArialRoundedMTBold;
-@primaryFontColor: #555555;
+@primaryFontColor: #666666;
 @secondaryFontColor: #888888;
+@navFontColor: #FFFFFF;
 @primaryBackgroundColor: #E6E6E6;
 @primaryBackgroundTintColor: #ECECEC;
-@primaryBackgroundColorTop: #F3F3F3;
-@primaryBackgroundColorBottom: #E6E6E6;
+@primaryBackgroundColorTop: #FFFFFF;
+@primaryBackgroundColorBottom: #ECECEC;
 @primaryBackgroundColorBottomStrong: #DDDDDD;
-@secondaryBackgroundColorTop: #FCFCFC;
+@secondaryBackgroundColorTop: #FFFFFF;
 @secondaryBackgroundColorBottom: #F9F9F9;
-@primaryBorderColor: #A2A2A2;
+@primaryBorderColor: #EEEEEE;
 @primaryBorderWidth: 1;
 
+BarButton {
+    background-color: #9ED5F5;
+    corner-radius: 7;
+    font-name: @secondaryFontNameBold;
+    font-color: @navFontColor;
+    font-size: 13;
+    text-shadow-color: clear;
+}
 Button {
-    background-color-top: #FFFFFF;
-    background-color-bottom: @primaryBackgroundColorBottom;
+    background-color: #FFFFFF;
     border-color: @primaryBorderColor;
     border-width: @primaryBorderWidth;
     font-color: @primaryFontColor;
@@ -52,10 +60,10 @@ SmallLabel {
 NavigationBar {
     font-name: @secondaryFontName;
     font-size: 20;
-    font-color: @primaryFontColor;
+    font-color: @navFontColor;
     text-shadow-color: clear;
-    background-color-top: @primaryBackgroundColorTop;
-    background-color-bottom: @primaryBackgroundColorBottomStrong;
+    background-color-top: #54B4EB;
+    background-color-bottom: #2FA4E7;
 }
 SegmentedControl {
     background-tint-color: @primaryBackgroundColorTop;
@@ -64,9 +72,11 @@ SegmentedControl {
     font-color: @primaryFontColor;
     text-shadow-color: clear;
 }
+Switch {
+    on-tint-color: @primaryBackgroundTintColor;
+}
 TabBar {
-    background-color-top: @primaryBackgroundColorTop;
-    background-color-bottom: @primaryBackgroundColorBottom;
+    background-color: #FFFFFF;
 }
 TabBarItem {
     font-name: @secondaryFontName;
@@ -101,11 +111,4 @@ LargeTextField {
 }
 View {
     background-image: NUIViewBackground.png;
-}
-UIBarButtonItem {
-    background-tint-color: @primaryBackgroundTintColor;
-    font-name: @secondaryFontNameBold;
-    font-color: @primaryFontColor;
-    text-shadow-color: clear;
-    font-size: 13;
 }

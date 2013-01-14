@@ -7,19 +7,34 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "NUIFileMonitor.h"
+#import "NUISettings.h"
 #import "NUIBarButtonItemRenderer.h"
 #import "NUIButtonRenderer.h"
 #import "NUILabelRenderer.h"
 #import "NUINavigationBarRenderer.h"
 #import "NUINavigationItemRenderer.h"
 #import "NUISegmentedControlRenderer.h"
+#import "NUISliderRenderer.h"
+#import "NUISwitchRenderer.h"
 #import "NUITabBarRenderer.h"
 #import "NUITabBarItemRenderer.h"
 #import "NUITableViewCellRenderer.h"
+#import "NUIToolbarRenderer.h"
 #import "NUITextFieldRenderer.h"
 #import "NUIViewRenderer.h"
+#import "UIView+NUI.h"
 
-@interface NUIRenderer : NSObject
+@interface NUIRenderer : NSObject {
+    NSMutableArray *renderedObjects;
+    NSMutableArray *renderedObjectIdentifiers;
+}
+
+@property(nonatomic,retain)NSMutableArray *renderedObjects;
+@property(nonatomic,retain)NSMutableArray *renderedObjectIdentifiers;
+
++ (void)render:(UIView*)object;
++ (void)rerender;
 
 + (void)renderBarButtonItem:(UIBarButtonItem*)item;
 + (void)renderBarButtonItem:(UIBarButtonItem*)item withClass:(NSString*)className;
@@ -40,6 +55,12 @@
 + (void)renderSegmentedControl:(UISegmentedControl*)control;
 + (void)renderSegmentedControl:(UISegmentedControl*)control withClass:(NSString*)className;
 
++ (void)renderSlider:(UISlider*)slider;
++ (void)renderSlider:(UISlider*)slider withClass:(NSString*)className;
+
++ (void)renderSwitch:(UISwitch*)uiSwitch;
++ (void)renderSwitch:(UISwitch*)uiSwitch withClass:(NSString*)className;
+
 + (void)renderTabBar:(UITabBar*)bar;
 + (void)renderTabBar:(UITabBar*)bar withClass:(NSString*)className;
 
@@ -49,10 +70,19 @@
 + (void)renderTableViewCell:(UITableViewCell*)cell;
 + (void)renderTableViewCell:(UITableViewCell*)cell withClass:(NSString*)className;
 
++ (void)renderToolbar:(UIToolbar*)bar;
++ (void)renderToolbar:(UIToolbar*)bar withClass:(NSString*)className;
+
 + (void)renderTextField:(UITextField*)textField;
 + (void)renderTextField:(UITextField*)textField withClass:(NSString*)className;
 
 + (void)renderView:(UIView*)view;
 + (void)renderView:(UIView*)view withClass:(NSString*)className;
+
++ (void)sizeDidChangeForNavigationBar:(UINavigationBar*)bar;
++ (void)sizeDidChangeForTabBar:(UITabBar*)bar;
++ (void)sizeDidChangeForTableViewCell:(UITableViewCell*)cell;
+
++ (void)addOrientationDidChangeObserver:(id)observer;
 
 @end

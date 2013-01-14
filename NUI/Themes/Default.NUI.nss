@@ -1,23 +1,33 @@
-@primaryFontName: ArialRoundedMTBold;
-@secondaryFontName: ArialRoundedMTBold;
-@secondaryFontNameBold: ArialRoundedMTBold;
-@secondaryFontNameStrong: ArialRoundedMTBold;
-@inputFontName: ArialRoundedMTBold;
-@primaryFontColor: #666666;
+@primaryFontName: AppleGothic;
+@secondaryFontName: HelveticaNeue-Light;
+@secondaryFontNameBold: HelveticaNeue;
+@secondaryFontNameStrong: HelveticaNeue-Medium;
+@inputFontName: HelveticaNeue;
+@primaryFontColor: #555555;
 @secondaryFontColor: #888888;
-@navFontColor: #FFFFFF;
 @primaryBackgroundColor: #E6E6E6;
 @primaryBackgroundTintColor: #ECECEC;
-@primaryBackgroundColorTop: #FFFFFF;
-@primaryBackgroundColorBottom: #ECECEC;
+@primaryBackgroundColorTop: #F3F3F3;
+@primaryBackgroundColorBottom: #E6E6E6;
 @primaryBackgroundColorBottomStrong: #DDDDDD;
-@secondaryBackgroundColorTop: #FFFFFF;
+@secondaryBackgroundColorTop: #FCFCFC;
 @secondaryBackgroundColorBottom: #F9F9F9;
-@primaryBorderColor: #EEEEEE;
+@primaryBorderColor: #A2A2A2;
 @primaryBorderWidth: 1;
 
+BarButton {
+    background-color: @primaryBackgroundColor;
+    border-color: @primaryBorderColor;
+    border-width: @primaryBorderWidth;
+    corner-radius: 7;
+    font-name: @secondaryFontNameBold;
+    font-color: @primaryFontColor;
+    font-size: 13;
+    text-shadow-color: clear;
+}
 Button {
-    background-color: #FFFFFF;
+    background-color-top: #FFFFFF;
+    background-color-bottom: @primaryBackgroundColorBottom;
     border-color: @primaryBorderColor;
     border-width: @primaryBorderWidth;
     font-color: @primaryFontColor;
@@ -29,7 +39,7 @@ Button {
 }
 LargeButton {
     height: 50;
-    font-size: 24;
+    font-size: 20;
     corner-radius: 10;
 }
 SmallButton {
@@ -44,7 +54,7 @@ Label {
     text-auto-fit: false;
 }
 LargeLabel {
-    font-size: 28;
+    font-size: 24;
 }
 SmallLabel {
     font-size: 15;
@@ -52,10 +62,10 @@ SmallLabel {
 NavigationBar {
     font-name: @secondaryFontName;
     font-size: 20;
-    font-color: @navFontColor;
+    font-color: @primaryFontColor;
     text-shadow-color: clear;
-    background-color-top: #54B4EB;
-    background-color-bottom: #2FA4E7;
+    background-color-top: @primaryBackgroundColorTop;
+    background-color-bottom: @primaryBackgroundColorBottomStrong;
 }
 SegmentedControl {
     background-tint-color: @primaryBackgroundColorTop;
@@ -64,8 +74,12 @@ SegmentedControl {
     font-color: @primaryFontColor;
     text-shadow-color: clear;
 }
+Switch {
+    on-tint-color: @primaryBackgroundTintColor;
+}
 TabBar {
-    background-color: #FFFFFF;
+    background-color-top: @primaryBackgroundColorTop;
+    background-color-bottom: @primaryBackgroundColorBottom;
 }
 TabBarItem {
     font-name: @secondaryFontName;
@@ -94,17 +108,9 @@ TextField {
 }
 LargeTextField {
     height: 50;
-}
-LargeTextField {
     font-size: 28;
 }
 View {
+    background-color: @primaryBackgroundColor;
     background-image: NUIViewBackground.png;
-}
-UIBarButtonItem {
-    background-color: #9ED5F5;
-    font-name: @secondaryFontNameBold;
-    font-color: @navFontColor;
-    text-shadow-color: clear;
-    font-size: 13;
 }

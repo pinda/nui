@@ -1,8 +1,8 @@
-@primaryFontName: AppleGothic;
-@secondaryFontName: HelveticaNeue-Light;
-@secondaryFontNameBold: HelveticaNeue;
-@secondaryFontNameStrong: HelveticaNeue-Medium;
-@inputFontName: HelveticaNeue;
+@primaryFontName: ArialRoundedMTBold;
+@secondaryFontName: ArialRoundedMTBold;
+@secondaryFontNameBold: ArialRoundedMTBold;
+@secondaryFontNameStrong: ArialRoundedMTBold;
+@inputFontName: ArialRoundedMTBold;
 @primaryFontColor: #555555;
 @secondaryFontColor: #888888;
 @primaryBackgroundColor: #E6E6E6;
@@ -15,6 +15,16 @@
 @primaryBorderColor: #A2A2A2;
 @primaryBorderWidth: 1;
 
+BarButton {
+    background-color: @primaryBackgroundColor;
+    border-color: @primaryBorderColor;
+    border-width: @primaryBorderWidth;
+    corner-radius: 7;
+    font-name: @secondaryFontNameBold;
+    font-color: @primaryFontColor;
+    font-size: 13;
+    text-shadow-color: clear;
+}
 Button {
     background-color-top: #FFFFFF;
     background-color-bottom: @primaryBackgroundColorBottom;
@@ -29,7 +39,7 @@ Button {
 }
 LargeButton {
     height: 50;
-    font-size: 20;
+    font-size: 24;
     corner-radius: 10;
 }
 SmallButton {
@@ -44,7 +54,7 @@ Label {
     text-auto-fit: false;
 }
 LargeLabel {
-    font-size: 24;
+    font-size: 28;
 }
 SmallLabel {
     font-size: 15;
@@ -63,6 +73,9 @@ SegmentedControl {
     font-size: 13;
     font-color: @primaryFontColor;
     text-shadow-color: clear;
+}
+Switch {
+    on-tint-color: @primaryBackgroundTintColor;
 }
 TabBar {
     background-color-top: @primaryBackgroundColorTop;
@@ -95,16 +108,10 @@ TextField {
 }
 LargeTextField {
     height: 50;
+}
+LargeTextField {
     font-size: 28;
 }
 View {
-    background-color: @primaryBackgroundColor;
     background-image: NUIViewBackground.png;
-}
-UIBarButtonItem {
-    background-tint-color: @primaryBackgroundTintColor;
-    font-name: @secondaryFontNameBold;
-    font-color: @primaryFontColor;
-    text-shadow-color: clear;
-    font-size: 13;
 }

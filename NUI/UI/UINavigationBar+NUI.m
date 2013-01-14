@@ -10,8 +10,6 @@
 
 @implementation UINavigationBar (NUI)
 
-@dynamic nuiClass;
-
 - (void)initNUI
 {
     if (!self.nuiClass) {
@@ -19,37 +17,36 @@
     }
 }
 
+- (void)applyNUI
+{
+    [self initNUI];
+    if (![self.nuiClass isEqualToString:@"none"]) {
+        [NUIRenderer renderNavigationBar:self withClass:self.nuiClass];
+        [NUIRenderer addOrientationDidChangeObserver:self];
+        
+        for (UINavigationItem *navigationItem in [self items]) {
+            for (UIBarButtonItem *barButtonItem in [navigationItem leftBarButtonItems]) {
+                [barButtonItem applyNUI];
+            }
+            for (UIBarButtonItem *barButtonItem in [navigationItem rightBarButtonItems]) {
+                [barButtonItem applyNUI];
+            }
+        }
+    }
+    self.nuiIsApplied = [NSNumber numberWithBool:YES];
+}
+
 - (void)override_didMoveToWindow
 {
     if (!self.nuiIsApplied) {
-        [self initNUI];
-        [self didMoveToWindowNUI];
-        self.nuiIsApplied = [NSNumber numberWithBool:YES];
+        [self applyNUI];
     }
     [self override_didMoveToWindow];
 }
 
-- (void)didMoveToWindowNUI
-{   
-    if (![self.nuiClass isEqualToString:@"none"]) {
-        [NUIRenderer renderNavigationBar:self withClass:self.nuiClass];
-    }
-}
-
-- (void)setNuiIsApplied:(NSNumber*)value {
-    objc_setAssociatedObject(self, "nuiIsApplied", value, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (NSNumber*)nuiIsApplied {
-    return objc_getAssociatedObject(self, "nuiIsApplied");
-}
-
-- (void)setNuiClass:(NSString*)value {
-    objc_setAssociatedObject(self, "nuiClass", value, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (NSString*)nuiClass {
-    return objc_getAssociatedObject(self, "nuiClass");
+- (void)orientationDidChange:(NSNotification*)notification
+{
+    [NUIRenderer performSelector:@selector(sizeDidChangeForNavigationBar:) withObject:self afterDelay:0];
 }
 
 @end

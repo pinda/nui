@@ -10,8 +10,6 @@
 
 @implementation UISegmentedControl (NUI)
 
-@dynamic nuiClass;
-
 - (void)initNUI
 {
     if (!self.nuiClass) {
@@ -19,37 +17,21 @@
     }
 }
 
-- (void)override_didMoveToWindow
+- (void)applyNUI
 {
-    if (!self.nuiIsApplied) {
-        [self initNUI];
-        [self didMoveToWindowNUI];
-        self.nuiIsApplied = [NSNumber numberWithBool:YES];
-    }
-    [self override_didMoveToWindow];
-}
-
-- (void)didMoveToWindowNUI
-{
+    [self initNUI];
     if (![self.nuiClass isEqualToString:@"none"]) {
         [NUIRenderer renderSegmentedControl:self withClass:self.nuiClass];
     }
+    self.nuiIsApplied = [NSNumber numberWithBool:YES];
 }
 
-- (void)setNuiClass:(NSString*)value {
-    objc_setAssociatedObject(self, "nuiClass", value, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (NSString*)nuiClass {
-    return objc_getAssociatedObject(self, "nuiClass");
-}
-
-- (void)setNuiIsApplied:(NSNumber*)value {
-    objc_setAssociatedObject(self, "nuiIsApplied", value, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (NSNumber*)nuiIsApplied {
-    return objc_getAssociatedObject(self, "nuiIsApplied");
+- (void)override_didMoveToWindow
+{
+    if (!self.nuiIsApplied) {
+        [self applyNUI];
+    }
+    [self override_didMoveToWindow];
 }
 
 @end

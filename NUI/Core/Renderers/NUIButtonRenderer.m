@@ -35,17 +35,20 @@
     
     // Set background color
     if ([NUISettings hasProperty:@"background-color" withClass:className]) {
-        [button setBackgroundColor:[NUISettings getColor:@"background-color" withClass:className]];
+        [button setBackgroundImage:[NUISettings getImageFromColor:@"background-color" withClass:className] forState:UIControlStateNormal];
     }
     
     // Set background gradient
     if ([NUISettings hasProperty:@"background-color-top" withClass:className]) {
-        CAGradientLayer *gradient = [NUIGraphics
+        CAGradientLayer *gradientLayer = [NUIGraphics
                                      gradientLayerWithTop:[NUISettings getColor:@"background-color-top" withClass:className] 
                                      bottom:[NUISettings getColor:@"background-color-bottom" withClass:className]
                                      frame:button.bounds];
-        int index = [button.layer.sublayers count] == 1 ? 0 : 1;
-        [button.layer insertSublayer:gradient atIndex:index];
+        int backgroundLayerIndex = [button.layer.sublayers count] == 1 ? 0 : 1;
+        if (button.nuiIsApplied) {
+            [[button.layer.sublayers objectAtIndex:backgroundLayerIndex] removeFromSuperlayer];
+        }
+        [button.layer insertSublayer:gradientLayer atIndex:backgroundLayerIndex];
     }
     
     // Set background image
@@ -58,8 +61,11 @@
     if ([NUISettings hasProperty:@"background-image-highlighted" withClass:className]) {
         [button setBackgroundImage:[NUISettings getImage:@"background-image-highlighted" withClass:className] forState:UIControlStateHighlighted];
     }
+    if ([NUISettings hasProperty:@"background-image-disabled" withClass:className]) {
+        [button setBackgroundImage:[NUISettings getImage:@"background-image-disabled" withClass:className] forState:UIControlStateDisabled];
+    }
     
-    [NUIRenderer renderLabel:button.titleLabel withClass:className];
+    [NUILabelRenderer renderText:button.titleLabel withClass:className];
     
     // Set text align
     if ([NUISettings hasProperty:@"text-align" withClass:className]) {
@@ -75,6 +81,30 @@
     }
     if ([NUISettings hasProperty:@"font-color-highlighted" withClass:className]) {
         [button setTitleColor:[NUISettings getColor:@"font-color-highlighted" withClass:className] forState:UIControlStateHighlighted];
+    }
+    if ([NUISettings hasProperty:@"font-color-disabled" withClass:className]) {
+        [button setTitleColor:[NUISettings getColor:@"font-color-disabled" withClass:className] forState:UIControlStateDisabled];
+    }
+    
+    // Set text shadow color
+    if ([NUISettings hasProperty:@"text-shadow-color" withClass:className]) {
+        [button setTitleShadowColor:[NUISettings getColor:@"text-shadow-color" withClass:className] forState:UIControlStateNormal];
+    }
+    if ([NUISettings hasProperty:@"text-shadow-color-selected" withClass:className]) {
+        [button setTitleShadowColor:[NUISettings getColor:@"text-shadow-color-selected" withClass:className] forState:UIControlStateSelected];
+    }
+    if ([NUISettings hasProperty:@"text-shadow-color-highlighted" withClass:className]) {
+        [button setTitleShadowColor:[NUISettings getColor:@"text-shadow-color-highlighted" withClass:className] forState:UIControlStateHighlighted];
+    }
+    
+    // title insets
+    if ([NUISettings hasProperty:@"title-insets" withClass:className]) {
+        [button setTitleEdgeInsets:[NUISettings getEdgeInsets:@"title-insets" withClass:className]];
+    }
+    
+    // content insets
+    if ([NUISettings hasProperty:@"content-insets" withClass:className]) {
+        [button setContentEdgeInsets:[NUISettings getEdgeInsets:@"content-insets" withClass:className]];
     }
     
     CALayer *layer = [button layer];
