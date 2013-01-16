@@ -12,6 +12,7 @@
 #import "NUIStyleParser.h"
 
 #import "CoreParse.h"
+#import "NUIKey.h"
 
 @interface NUIStyleParser () <CPTokeniserDelegate, CPParserDelegate>
 
@@ -22,6 +23,9 @@
 
 @implementation NUIStyleParser {
   NSCharacterSet *symbolsSet;
+  BOOL inStyle;
+  BOOL justTokenisedObject;
+  BOOL inRange;
 }
 
 @synthesize tokeniser;
@@ -33,12 +37,32 @@
   
   if (nil != self)
   {
-    symbolsSet = [NSCharacterSet characterSetWithCharactersInString:@"*[]{}.;@-!=<>:!#%"];
+    symbolsSet = [NSCharacterSet characterSetWithCharactersInString:@"{}.;@:"];
     
-    NSDictionary *pt = [NSKeyedUnarchiver unarchiveObjectWithFile:[[NSBundle mainBundle] pathForResource:@"parser" ofType:@"osp"]];
-    [self setTokeniser:[pt objectForKey:@"tokeniser"]];
-    [self setParser:[pt objectForKey:@"parser"]];
+    NSMutableCharacterSet *identifierCharacters = [NSMutableCharacterSet alphanumericCharacterSet];
+    [identifierCharacters addCharactersInString:@"-_"];
+    NSMutableCharacterSet *initialIdCharacters = [NSMutableCharacterSet letterCharacterSet];
+    [initialIdCharacters addCharactersInString:@"-_"];
+    tokeniser = [[CPTokeniser alloc] init];
+    [tokeniser addTokenRecogniser:[CPNumberRecogniser numberRecogniser]];
+    [tokeniser addTokenRecogniser:[CPWhiteSpaceRecogniser whiteSpaceRecogniser]];
+    [tokeniser addTokenRecogniser:[CPQuotedRecogniser quotedRecogniserWithStartQuote:@"/*" endQuote:@"*/" name:@"Comment"]];
+    [tokeniser addTokenRecogniser:[CPQuotedRecogniser quotedRecogniserWithStartQuote:@"//" endQuote:@"\n" name:@"Comment"]];
+    [tokeniser addTokenRecogniser:[CPKeywordRecogniser recogniserForKeyword:@"{"]];
+    [tokeniser addTokenRecogniser:[CPKeywordRecogniser recogniserForKeyword:@"}"]];
+    [tokeniser addTokenRecogniser:[CPKeywordRecogniser recogniserForKeyword:@":"]];
+    [tokeniser addTokenRecogniser:[CPKeywordRecogniser recogniserForKeyword:@";"]];
+    [tokeniser addTokenRecogniser:[CPIdentifierRecogniser identifierRecogniserWithInitialCharacters:initialIdCharacters identifierCharacters:identifierCharacters]];
     [[self tokeniser] setDelegate:self];
+    
+    NSError* err;
+    CPGrammar *grammar = [CPGrammar grammarWithStart:@"styledef"
+                                      backusNaurForm:
+                          @"styledef      ::= <NUIKey> ':' <NUISize>';';"
+                          @"NUIKey        ::= 'Identifier';"
+                          @"NUISize       ::= 'Number';"
+                                               error:&err];
+    parser = [[CPLALR1Parser alloc] initWithGrammar:grammar];
     [[self parser] setDelegate:self];
   }
   
@@ -50,15 +74,45 @@
   return YES;
 }
 
+- (void)tokeniser:(CPTokeniser *)tokeniser requestsToken:(CPToken *)token pushedOntoStream:(CPTokenStream *)stream
+{
+  if (![token isWhiteSpaceToken] && ![[token name] isEqualToString:@"Comment"])
+  {
+    [stream pushToken:token];
+  }
+}
+
 - (NSUInteger)tokeniser:(CPTokeniser *)tokeniser didNotFindTokenOnInput:(NSString *)input position:(NSUInteger)position error:(NSString *__autoreleasing *)errorMessage
 {
-  NSLog(@"Argh");
   return 1;
 }
 
-- (CPRecoveryAction*)parser:(CPParser *)parser didEncounterErrorOnInput:(CPTokenStream *)inputStream expecting:(NSSet *)acceptableTokens
+- (CPRecoveryAction *)parser:(CPParser *)parser didEncounterErrorOnInput:(CPTokenStream *)inputStream expecting:(NSSet *)acceptableTokens
 {
+  CPToken *t = [inputStream peekToken];
+  if ([t isEqual:[CPKeywordToken tokenWithKeyword:@"}"]] &&
+      [acceptableTokens containsObject:@";"])
+  {
+    return [CPRecoveryAction recoveryActionWithAdditionalToken:[CPKeywordToken tokenWithKeyword:@";"]];
+  }
+  if ([t isEqual:[CPKeywordToken tokenWithKeyword:@"{"]] &&
+      [acceptableTokens containsObject:@","])
+  {
+    return [CPRecoveryAction recoveryActionWithAdditionalToken:[CPKeywordToken tokenWithKeyword:@","]];
+  }
+  
+  NSLog(@"%ld:%ld: parse error.  Expected %@, found %@", (long)[t lineNumber] + 1, (long)[t columnNumber] + 1, acceptableTokens, t);
   return [CPRecoveryAction recoveryActionStop];
+}
+
+- (id)parser:(CPParser *)parser didProduceSyntaxTree:(CPSyntaxTree *)syntaxTree
+{
+  CPToken* t = [syntaxTree childAtIndex:0];
+  
+  if ([t isKindOfClass:[NUIKey class]]) {
+    return [(NUIKey*)[syntaxTree childAtIndex:0] key];
+  }
+  return [(CPKeywordToken*)[syntaxTree childAtIndex:0] keyword];
 }
 
 - (NSMutableDictionary*)getStylesFromFile:(NSString*)fileName
@@ -67,12 +121,14 @@
   NSAssert1(path != nil, @"File \"%@\" does not exist", fileName);
   NSString* content = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
   
+  NSString* css = @"line-width: 50;";
+  
   CPTokenStream *stream = [[CPTokenStream alloc] init];
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^()
                  {
                    @autoreleasepool
                    {
-                     [[self tokeniser] tokenise:content into:stream];
+                     [[self tokeniser] tokenise:css into:stream];
                    }
                  });
   return [[self parser] parse:stream];
